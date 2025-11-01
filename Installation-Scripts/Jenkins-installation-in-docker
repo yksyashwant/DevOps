@@ -1,0 +1,28 @@
+To run Jenkins inside docker
+
+docker run -d -v jenkins_home:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock -u root -p 8080:8080 -p 50000:50000 --restart=on-failure jenkins/jenkins:lts-jdk21
+
+After running Jenkins container:
+
+docker exec -it <container_id> bash
+apt update
+apt install -y docker.io
+
+This allows Jenkins pipelines to execute docker build / docker push commands.
+
+Option 2
+Create a custom Jenkins image with Docker preinstalled
+
+Dockerfile:
+
+FROM jenkins/jenkins:lts-jdk21
+USER root
+RUN apt-get update && apt-get install -y docker.io
+USER jenkins
+
+
+Build and run the custom image:
+
+docker build -t jenkins-docker .
+
+docker run -d -v jenkins_home:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock -u root -p 8080:8080 -p 50000:50000 --restart=on-failure jenkins-docker
